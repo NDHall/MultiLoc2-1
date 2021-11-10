@@ -1,6 +1,8 @@
+#! /usr/bin/python2
+
 import re, os, sys, util
 
-tmpfile_path=""
+#tmpfile_path="/data/run/hallna12/microPep/multiLoc2/xch_dir/tmp/"
 svm_path=""
 firstN = 100
 window_size = 20
@@ -155,7 +157,7 @@ def create_svm2_input(file_path,input_file,proteins,klasse,firstN,window_size,sv
 	os.remove("%soutput_svmsa.dat" % file_path)
 
 
-def predict(origin,data,svm_model_path,libsvm_path,model=12345,id=1):
+def predict(origin,data,svm_model_path,libsvm_path,model=12345,id=1, tmpfile_path=None):
 	global svm_path
 	svm_path=libsvm_path
 	file_path = tmpfile_path+"/"+str(id)
@@ -163,8 +165,8 @@ def predict(origin,data,svm_model_path,libsvm_path,model=12345,id=1):
 		
 	svm1_sa = svm_model_path+"/svm_sa_%s_level1_benchmark80/%s.model" %(origin,model)
 	svm2_sa = svm_model_path+"/svm_sa_%s_level2_benchmark80/%s.model" %(origin,model)
-	   
-	result=[]
+
+	result = []
 	proteins = util.parse_fasta_file(data)
 	input_file = open("%stest_svmsa_svm2.dat" % file_path, 'w')	
 	create_svm2_input(file_path,input_file,proteins,"0",firstN,window_size,svm1_sa)   
@@ -196,8 +198,10 @@ def predict(origin,data,svm_model_path,libsvm_path,model=12345,id=1):
 	os.remove("%soutput_svm2_sa.dat" % file_path)
 	return result
 
-def plant_predict(data,svm_model_path,libsvm_path,model=12345,id=1):
-	return predict("plant",data,svm_model_path,libsvm_path,model,id)
 
-def noplant_predict(data,svm_model_path,libsvm_path,model=12345,id=1):
-	return predict("noplant",data,svm_model_path,libsvm_path,model,id)
+def plant_predict(data,svm_model_path,libsvm_path,model=12345,id=1, tmpfile_path=None):
+	return predict("plant",data,svm_model_path,libsvm_path,model,id, tmpfile_path)
+
+
+def noplant_predict(data,svm_model_path,libsvm_path,model=12345,id=1, tmpfile_path=None):
+	return predict("noplant",data,svm_model_path,libsvm_path,model,id, tmpfile_path)
