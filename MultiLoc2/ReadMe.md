@@ -45,9 +45,9 @@ python configureML2.py
 The script sets all paths and checks if the required packages are installed.
 The MultiLoc2 package contains three subdirectories:
 
-src : all python scripts that build up the prediction system
-data : the required data in the form of trained Libsvm models and NCBI genome data
-tmp : for temporary files created and removed during program execution
+1. src : all python scripts that build up the prediction system
+2. data : the required data in the form of trained Libsvm models and NCBI genome data
+3. tmp : for temporary files created and removed during program execution
 
 # Usage:
 --------------
