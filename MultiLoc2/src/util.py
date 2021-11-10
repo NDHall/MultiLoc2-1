@@ -1,3 +1,5 @@
+#!/usr/bin/python2
+
 import re,sys,os,string, time, probability_estimate
 
 class Timeout(Exception):
