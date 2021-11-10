@@ -1,7 +1,9 @@
+#!/usr/bin/python2
+
 import re, os, sys, time, util
 
 svm_path=""
-tmpfile_path=""
+#tmpfile_path="/data/run/hallna12/microPep/multiLoc2/xch_dir/tmp/"
 
 firstN_plant = 100
 firstN_noplant = 60
@@ -291,7 +293,7 @@ def create_svm2_input(origin,file_path,input_file,mtp_ctp_file,proteins,klasse,f
 	if origin == "plant":
 		line=file_output_ctp_vs_sp.readline()
 	line=file_output_mtp_vs_sp.readline()
-   
+
 	for j in range (0,len(proteins)):
 		input_file.write(klasse)
 		n = 0
@@ -480,10 +482,10 @@ def create_svm2_input(origin,file_path,input_file,mtp_ctp_file,proteins,klasse,f
 	os.remove("%soutput_svm_mtp_vs_sp.dat"  % file_path)
 	
 
-def predict(origin,data,model,svm_model_path,libsvm_path,id=1):
+def predict(origin,data,model,svm_model_path,libsvm_path,id=1, tmpfile_path=None):
 	global svm_path
 	svm_path = libsvm_path
-	file_path = tmpfile_path+"/"+str(id)
+	file_path = tmpfile_path + "/" + str(id)
 	model = str(model)
 	
 	svm_sp_vs_other = svm_model_path+"/sp_vs_other/%s.model" %(model)
@@ -547,7 +549,7 @@ def predict(origin,data,model,svm_model_path,libsvm_path,id=1):
 			result.append({'id':proteins[i]['id'],'score_mtp':score_mtp,'score_sp':score_sp,'score_other':score_other})
 	file_output.close()
 	if origin == "plant":
-	   mtp_ctp_file.close()
+		mtp_ctp_file.close()
 
 	os.remove("%sweg" % file_path)
 	os.remove("%stest_svm2.dat" % file_path)
@@ -556,8 +558,8 @@ def predict(origin,data,model,svm_model_path,libsvm_path,id=1):
 		os.remove("%smtp_ctp.dat" % file_path)
 	return result	
 
-def plant_predict(data,model,svm_model_path,libsvm_path,id=1):
-	return predict("plant",data,model,svm_model_path,libsvm_path,id)
+def plant_predict(data,model,svm_model_path,libsvm_path,id=1, tmpfile_path=None):
+	return predict("plant",data,model,svm_model_path,libsvm_path,id, tmpfile_path)
 
-def noplant_predict(data,model,svm_model_path,libsvm_path,id=1):
-	return predict("noplant",data,model,svm_model_path,libsvm_path,id)
+def noplant_predict(data,model,svm_model_path,libsvm_path,id=1, tmpfile_path=None):
+	return predict("noplant",data,model,svm_model_path,libsvm_path,id, tmpfile_path)
