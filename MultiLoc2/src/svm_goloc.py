@@ -1,7 +1,9 @@
+#! /usr/bin/python2
+
 import re,sys,os,string, time, util
 
 svm_path=""
-tmpfile_path=""
+
 
 all_animal_go_terms = []
 all_fungi_go_terms = []
@@ -51,9 +53,10 @@ def process_go_files(origin,go_file_names):
 				fv = fv + " " + str(go_term) + ":1.0"
 		protein_go_fvector[protein_id] = fv
 
-def create_feature_vector(inter_pro_scan_path,origin,sequence,id,protein_id):
+def create_feature_vector(inter_pro_scan_path,origin,sequence,id,protein_id, tmpfile_path=None):
 	file_path = tmpfile_path+"/"+str(id)
 	fv = ""
+
 	if use_go_files == 1:
 		if protein_id in protein_go_fvector.keys():
 			fv = protein_go_fvector[protein_id]
@@ -95,7 +98,7 @@ def create_feature_vector(inter_pro_scan_path,origin,sequence,id,protein_id):
 		os.remove("%stest.out" % file_path)
 	return fv
 
-def predict(origin,table,path,data,model,libsvm_path,inter_pro_scan_path,use_inter_pro_scan,go_file_names, id=1):
+def predict(origin,table,path,data,model,libsvm_path,inter_pro_scan_path,use_inter_pro_scan,go_file_names, id=1, tmpfile_path=None):
 	model=str(model)
 	if origin == "animal":
 		global all_animal_go_terms
@@ -141,12 +144,11 @@ def predict(origin,table,path,data,model,libsvm_path,inter_pro_scan_path,use_int
 		process_go_files(origin,go_file_names)
 	
 	proteins = util.parse_fasta_file(data)
-
 	file_path = tmpfile_path+"/"+str(id)
 	input_file = open("%stest_svm.dat" % file_path, 'w')
 	no_fv_proteins=[]
 	for i in range (0,len(proteins)):
-		fv = create_feature_vector(inter_pro_scan_path,origin,proteins[i]['sequence'],id,proteins[i]['id'])
+		fv = create_feature_vector(inter_pro_scan_path,origin,proteins[i]['sequence'],id,proteins[i]['id'],tmpfile_path)
 		if fv != "":
 			fv = "0 " + fv
 			input_file.write(fv+"\n")
@@ -155,14 +157,22 @@ def predict(origin,table,path,data,model,libsvm_path,inter_pro_scan_path,use_int
 			if use_go_files == 1 and len(go_file_names) > 0:
 				print "warning: no GO terms found for protein with id: %s" %(proteins[i]['id'])
 	input_file.close()
-	
 	return util.predict_one_vs_one(table,origin,model,path,libsvm_path,tmpfile_path,id,proteins,no_fv_proteins)
 
-def animal_predict(table,path,data,model,libsvm_path,inter_pro_scan_path,use_inter_pro_scan,go_file_names, id=1):
-	return predict("animal",table,path,data,model,libsvm_path,inter_pro_scan_path,use_inter_pro_scan,go_file_names, id)
+
+def animal_predict(table,path,data,model,libsvm_path,inter_pro_scan_path,use_inter_pro_scan,go_file_names,
+				id=1, tmpfile_path=None):
+
+
+	return predict("animal",table,path,data,model,libsvm_path,inter_pro_scan_path,use_inter_pro_scan,go_file_names, id,
+				tmpfile_path)
 	
-def fungi_predict(table,path,data,model,libsvm_path,inter_pro_scan_path,use_inter_pro_scan,go_file_names, id=1):
-	return predict("fungi",table,path,data,model,libsvm_path,inter_pro_scan_path,use_inter_pro_scan,go_file_names, id)
+def fungi_predict(table,path,data,model,libsvm_path,inter_pro_scan_path,use_inter_pro_scan,go_file_names, id=1,
+				tmpfile_path=None):
+	return predict("fungi",table,path,data,model,libsvm_path,inter_pro_scan_path,use_inter_pro_scan,go_file_names, id,
+				tmpfile_path)
 	
-def plant_predict(table,path,data,model,libsvm_path,inter_pro_scan_path,use_inter_pro_scan,go_file_names, id=1):
-	return predict("plant",table,path,data,model,libsvm_path,inter_pro_scan_path,use_inter_pro_scan,go_file_names, id)
+def plant_predict(table,path,data,model,libsvm_path,inter_pro_scan_path,use_inter_pro_scan,go_file_names, id=1,
+				tmpfile_path=None):
+	return predict("plant",table,path,data,model,libsvm_path,inter_pro_scan_path,use_inter_pro_scan,go_file_names, id,
+				tmpfile_path)
