@@ -1,3 +1,5 @@
+#! /usr/bin/python2
+
 import re, os, sys, util
 
 def searchNLS(sequence):
