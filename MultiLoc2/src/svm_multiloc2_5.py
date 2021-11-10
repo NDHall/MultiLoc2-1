@@ -1,11 +1,13 @@
+#!/usr/bin/python2
+
 import re, os, sys, util
 
-tmpfile_path=""
 
-def predict(origin,table,proteins,path,libsvm_path,model=12345, id=1):
+
+
+def predict(origin,table,proteins,path,libsvm_path,model=12345, id=1, tmpfile_path=None):
 	model=str(model)
-
-	file_path = tmpfile_path+str(id)
+	file_path = tmpfile_path+'/'+str(id)
 	input_file = open("%stest_svm.dat" % file_path, 'w')
 	no_fv_proteins = []
 	for i in range(0, len(proteins)):
@@ -18,11 +20,11 @@ def predict(origin,table,proteins,path,libsvm_path,model=12345, id=1):
 	input_file.close()
 	return util.predict_one_vs_one(table,origin,model,path,libsvm_path,tmpfile_path,id,proteins,no_fv_proteins)
 
-def animal_predict(proteins,path,libsvm_path,model=12345, id=1):
-	return predict("animal","BACELLOA",proteins,path,libsvm_path,model, id)
+def animal_predict(proteins,path,libsvm_path,model=12345, id=1, tmpfile_path=None):
+	return predict("animal","BACELLOA",proteins,path,libsvm_path,model, id, tmpfile_path)
 
-def fungi_predict(proteins,path,libsvm_path,model=12345, id=1):
-	return predict("fungi","BACELLOF",proteins,path,libsvm_path,model, id)
+def fungi_predict(proteins,path,libsvm_path,model=12345, id=1, tmpfile_path=None):
+	return predict("fungi","BACELLOF",proteins,path,libsvm_path,model, id,tmpfile_path)
 
-def plant_predict(proteins,path,libsvm_path,model=12345, id=1):
-	return predict("plant","BACELLOP",proteins,path,libsvm_path,model, id)
+def plant_predict(proteins,path,libsvm_path,model=12345, id=1, tmpfile_path=None):
+	return predict("plant","BACELLOP",proteins,path,libsvm_path,model, id, tmpfile_path)
