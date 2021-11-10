@@ -74,11 +74,11 @@ def multiloc2_create_feature_vector(predictor,origin, fastafile, go_file_names, 
 		use_inter_pro_scan = 0
 	feature_vector = []
 	print "create feature vectors"
-	libsvm_path="/usr/bin/"
-	inter_pro_scan_path="/opt/software/iprscan/5.47.82.0-Python3/"
-	blast_path="/opt/software/BLAST+/2.10.0/bin/"
-	genome_path="/opt/software/MultiLoc2/1.0/data/NCBI/"
-	svm_data_path="/opt/software/MultiLoc2/1.0/data/svm_models/MultiLoc2/"
+	libsvm_path=""
+	inter_pro_scan_path=""
+	blast_path=""
+	genome_path=""
+	svm_data_path=""
 	util.validate_not_empty([libsvm_path,blast_path,genome_path,svm_data_path])
 	if use_inter_pro_scan == 1:
 		util.validate_not_empty([inter_pro_scan_path])
