@@ -1,7 +1,8 @@
-import re,sys,os,string,math,time,util
+#!/usr/bin/python2
 
+import re,sys,os,string,math,time,util
+import warnings
 svm_path=""
-tmpfile_path=""
 genome_path=""
 blast_path=""
 formatdb_path=""
@@ -25,7 +26,7 @@ def createSelfBitScores(filename):
 	ifile.close()
 
 
-def createProfile(fastafile, blast_path, genome_path, sessionid=1):
+def createProfile(fastafile, blast_path, genome_path, sessionid=1, tmpfile_path=None):
 	file_path = tmpfile_path+"/"+str(sessionid)
 	query_path = "%squeryfilePhylo.txt" %(file_path)
 	parse_path = "%sparsefilePhylo.txt" %(file_path)
@@ -128,8 +129,20 @@ def createProfile(fastafile, blast_path, genome_path, sessionid=1):
 			evalue = 1
 			for cutoff in phylovalue.keys():
 				phylovalue[cutoff] = 1.0
-
-		proteins2[id][i]=bit_score
+		"""
+		proteins2[id][i] = bit_score 
+		has been creating an error. Truncated version below
+				proteins2[id][i]=bit_score
+					KeyError: 'Ipurp_gene31036.mRNA1'
+		Solution by NDHall,  to add dictionary checks and raise warning when data is skipped.
+		"""
+		if id in proteins2:
+			if i in proteins2[id]:
+				proteins2[id][i] = bit_score
+			else:
+				warnings.warn( str(i) + ' has been excluded from ' + str(id) + "in proteins2 dict", category=UserWarning)
+		else:
+			warnings.warn( str(id) + ' has not been added proteins2 dict' , category=UserWarning)
 
 		'''
 		for k in range(len(blastLines)):
@@ -201,7 +214,7 @@ def createProfile(fastafile, blast_path, genome_path, sessionid=1):
 		os.system(cmd)
 	return res
 
-def create_feature_vector(protein_id,sequence,blast_path,genome_path,id=1):
+def create_feature_vector(protein_id,sequence,blast_path,genome_path,id=1, tmpfile_path=None):
 	file_path = tmpfile_path+"/"+str(id)
 	fv = ""
 	file = open("%stest.seq" %(file_path),"w")
@@ -217,7 +230,7 @@ def create_feature_vector(protein_id,sequence,blast_path,genome_path,id=1):
 	inputfile.writelines(line)
 	inputfile.seek(0)
 	createSelfBitScores("%stest_blast.txt" %(file_path))
-	fvs = createProfile(inputfile,blast_path,genome_path,id)
+	fvs = createProfile(inputfile,blast_path,genome_path,id,tmpfile_path)
 	fv=""
 	if len(fvs) > 0:
 		fv=fvs[0]
@@ -238,30 +251,33 @@ def create_feature_vector(protein_id,sequence,blast_path,genome_path,id=1):
 		os.remove("%stest.out" % file_path)
 	return fv
 
-def predict(origin,table,path,data,model,libsvm_path,blast_path,genome_path, id=1):
-    model=str(model)
 
-    proteins = util.parse_fasta_file(data)
+def predict(origin,table,path,data,model,libsvm_path,blast_path,genome_path, id=1, tmpfile_path=None):
+	model=str(model)
 
-    file_path = tmpfile_path+"/"+str(id)
-    input_file = open("%stest_svm.dat" % file_path, 'w')
-    no_fv_proteins=[]
-    for i in range (0,len(proteins)):
-        fv = create_feature_vector(proteins[i]['id'],proteins[i]['sequence'],blast_path,genome_path,id)
-        if fv != "":
-            fv = "0 " + fv
-            input_file.write(fv+"\n")
-        else:
-            no_fv_proteins.append(proteins[i]['id'])
-    input_file.close()
+	proteins = util.parse_fasta_file(data)
+	file_path = tmpfile_path+"/"+str(id)
+	input_file = open("%stest_svm.dat" % file_path, 'w')	
+	no_fv_proteins=[]
+	for i in range (0,len(proteins)):
+		fv = create_feature_vector(proteins[i]['id'],proteins[i]['sequence'],blast_path,genome_path,id, tmpfile_path)
+		if fv != "":
+			fv = "0 " + fv
+			input_file.write(fv+"\n")
+		else:
+			no_fv_proteins.append(proteins[i]['id'])
+	input_file.close()
 
-    return util.predict_one_vs_one(table,origin,model,path,libsvm_path,tmpfile_path,id,proteins,no_fv_proteins)
+	return util.predict_one_vs_one(table,origin,model,path,libsvm_path,tmpfile_path,id,proteins,no_fv_proteins)
 
-def animal_predict(table,path,data,model,libsvm_path,blast_path,genome_path, id=1):
-	return predict("animal",table,path,data,model,libsvm_path,blast_path,genome_path, id)
 
-def fungi_predict(table,path,data,model,libsvm_path,blast_path,genome_path, id=1):
-	return predict("fungi",table,path,data,model,libsvm_path,blast_path,genome_path, id)
+def animal_predict(table,path,data,model,libsvm_path,blast_path,genome_path, id=1, tmpfile_path=None):
+	return predict("animal",table,path,data,model,libsvm_path,blast_path,genome_path, id, tmpfile_path)
 
-def plant_predict(table,path,data,model,libsvm_path,blast_path,genome_path, id=1):
-	return predict("plant",table,path,data,model,libsvm_path,blast_path,genome_path, id)
+
+def fungi_predict(table,path,data,model,libsvm_path,blast_path,genome_path, id=1,tmpfile_path=None):
+	return predict("fungi",table,path,data,model,libsvm_path,blast_path,genome_path, id,tmpfile_path)
+
+
+def plant_predict(table,path,data,model,libsvm_path,blast_path,genome_path, id=1, tmpfile_path=None):
+	return predict("plant",table,path,data,model,libsvm_path,blast_path,genome_path, id, tmpfile_path)
