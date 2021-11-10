@@ -1,7 +1,11 @@
+#!/usr/bin/python2
+
 import string, sys, os, getopt, smtplib, math
 import cgi,re,time,posix
 
 src_path=""
+
+
 
 sys.path.append(src_path)
 
@@ -63,18 +67,18 @@ def check_load():
 			raise TimeOutError("Time out!")
 		time.sleep(wait)
 
-def multiloc2_create_feature_vector(predictor,origin, fastafile, go_file_names, model, prediction_id):
+def multiloc2_create_feature_vector(predictor,origin, fastafile, go_file_names, model, prediction_id,tmpfile_path):
 	global multiloc2_mode
 	use_inter_pro_scan = 1
 	if multiloc2_mode == "stand-alone":
 		use_inter_pro_scan = 0
 	feature_vector = []
 	print "create feature vectors"
-	libsvm_path=""
-	inter_pro_scan_path=""
-	blast_path=""
-	genome_path=""
-	svm_data_path=""
+	libsvm_path="/usr/bin/"
+	inter_pro_scan_path="/opt/software/iprscan/5.47.82.0-Python3/"
+	blast_path="/opt/software/BLAST+/2.10.0/bin/"
+	genome_path="/opt/software/MultiLoc2/1.0/data/NCBI/"
+	svm_data_path="/opt/software/MultiLoc2/1.0/data/svm_models/MultiLoc2/"
 	util.validate_not_empty([libsvm_path,blast_path,genome_path,svm_data_path])
 	if use_inter_pro_scan == 1:
 		util.validate_not_empty([inter_pro_scan_path])
@@ -84,11 +88,11 @@ def multiloc2_create_feature_vector(predictor,origin, fastafile, go_file_names, 
 		if predictor == "MultiLoc2.11":
 			svm_model_path=svm_data_path+"/benchmark80_svm_target/"
 		print "run SVMTarget"
-		result_svmtarget=svm_target.noplant_predict(fastafile,model,svm_model_path,libsvm_path, prediction_id)
+		result_svmtarget=svm_target.noplant_predict(fastafile,model,svm_model_path,libsvm_path, prediction_id,tmpfile_path)
 		if predictor == "MultiLoc2.11":
 			fastafile.seek(0)
 			print "run SVMSA"
-			result_svm_sa = svm_sa.noplant_predict(fastafile,svm_data_path,libsvm_path,12345, prediction_id)
+			result_svm_sa = svm_sa.noplant_predict(fastafile,svm_data_path,libsvm_path,12345, prediction_id,tmpfile_path)
 		fastafile.seek(0)
 		aac_type="aac"
 		table="BACELLOA"
@@ -97,7 +101,7 @@ def multiloc2_create_feature_vector(predictor,origin, fastafile, go_file_names, 
 			table="Benchmark80A"
 			svm_model_path=svm_data_path+"/benchmark80_animal_svmaac/"
 		print "run SVMaac"
-		result_svm_aac = svm_aac.animal_predict(aac_type,table,svm_model_path,fastafile,model,libsvm_path,prediction_id)
+		result_svm_aac = svm_aac.animal_predict(aac_type,table,svm_model_path,fastafile,model,libsvm_path,prediction_id, tmpfile_path)
 		fastafile.seek(0)
 		svm_model_path=svm_data_path+"/bacello_all_animal_goloc/"
 		if predictor == "MultiLoc2.11":
@@ -106,13 +110,13 @@ def multiloc2_create_feature_vector(predictor,origin, fastafile, go_file_names, 
 			print "skip GOLoc"
 		else:
 			print "run GOLoc"
-		result_svm_goloc = svm_goloc.animal_predict(table,svm_model_path,fastafile,model,libsvm_path,inter_pro_scan_path,use_inter_pro_scan,go_file_names,prediction_id)
+		result_svm_goloc = svm_goloc.animal_predict(table,svm_model_path,fastafile,model,libsvm_path,inter_pro_scan_path,use_inter_pro_scan,go_file_names,prediction_id,tmpfile_path)
 		fastafile.seek(0)
 		svm_model_path=svm_data_path+"/bacello_all_animal_phyloloc_G78BS/"
 		if predictor == "MultiLoc2.11":
 			svm_model_path=svm_data_path+"/benchmark80_animal_phyloloc_G78BS/"
 		print "run PhyloLoc"
-		result_svm_phyloloc = svm_phyloloc.animal_predict(table,svm_model_path,fastafile,model,libsvm_path,blast_path,genome_path,prediction_id)
+		result_svm_phyloloc = svm_phyloloc.animal_predict(table,svm_model_path,fastafile,model,libsvm_path,blast_path,genome_path,prediction_id,tmpfile_path)
 		fastafile.seek(0)
 		print "run MotifSearch"
 		result_motif_search=motif_search.search(fastafile)
@@ -193,12 +197,12 @@ def multiloc2_create_feature_vector(predictor,origin, fastafile, go_file_names, 
 		if predictor == "MultiLoc2.11":
 			svm_model_path=svm_data_path+"/benchmark80_svm_target/"
 		print "run SVMTarget"
-		result_svmtarget=svm_target.noplant_predict(fastafile,model,svm_model_path,libsvm_path, prediction_id)
+		result_svmtarget=svm_target.noplant_predict(fastafile,model,svm_model_path,libsvm_path, prediction_id,tmpfile_path)
 		result_svm_sa = []
 		if predictor == "MultiLoc2.11":
 			fastafile.seek(0)
 			print "run SVMSA"
-			result_svm_sa = svm_sa.noplant_predict(fastafile,svm_data_path,libsvm_path,12345, prediction_id)
+			result_svm_sa = svm_sa.noplant_predict(fastafile,svm_data_path,libsvm_path,12345, prediction_id,tmpfile_path)
 		fastafile.seek(0)
 		aac_type="aac"
 		table="BACELLOF"
@@ -207,7 +211,7 @@ def multiloc2_create_feature_vector(predictor,origin, fastafile, go_file_names, 
 			table="Benchmark80F"
 			svm_model_path=svm_data_path+"/benchmark80_fungi_svmaac/"
 		print "run SVMaac"
-		result_svm_aac = svm_aac.fungi_predict(aac_type,table,svm_model_path,fastafile,model,libsvm_path,prediction_id)
+		result_svm_aac = svm_aac.fungi_predict(aac_type,table,svm_model_path,fastafile,model,libsvm_path,prediction_id,tmpfile_path)
 		fastafile.seek(0)
 		svm_model_path=svm_data_path+"/bacello_all_fungi_goloc/"
 		if predictor == "MultiLoc2.11":
@@ -216,13 +220,13 @@ def multiloc2_create_feature_vector(predictor,origin, fastafile, go_file_names, 
 			print "skip GOLoc"
 		else:
 			print "run GOLoc"
-		result_svm_goloc = svm_goloc.fungi_predict(table,svm_model_path,fastafile,model,libsvm_path,inter_pro_scan_path,use_inter_pro_scan,go_file_names,prediction_id)
+		result_svm_goloc = svm_goloc.fungi_predict(table,svm_model_path,fastafile,model,libsvm_path,inter_pro_scan_path,use_inter_pro_scan,go_file_names,prediction_id,tmpfile_path)
 		fastafile.seek(0)
 		svm_model_path=svm_data_path+"/bacello_all_fungi_phyloloc_G78BS/"
 		if predictor == "MultiLoc2.11":
 			svm_model_path=svm_data_path+"/benchmark80_fungi_phyloloc_G78BS/"
 		print "run PhyloLoc"
-		result_svm_phyloloc = svm_phyloloc.fungi_predict(table,svm_model_path,fastafile,model,libsvm_path,blast_path,genome_path,prediction_id)
+		result_svm_phyloloc = svm_phyloloc.fungi_predict(table,svm_model_path,fastafile,model,libsvm_path,blast_path,genome_path,prediction_id,tmpfile_path)
 		fastafile.seek(0)
 		print "run MotifSearch"
 		result_motif_search=motif_search.search(fastafile)
@@ -303,11 +307,11 @@ def multiloc2_create_feature_vector(predictor,origin, fastafile, go_file_names, 
 		if predictor == "MultiLoc2.11":
 			svm_model_path=svm_data_path+"/benchmark80_svm_target/"
 		print "run SVMTarget"
-		result_svmtarget=svm_target.plant_predict(fastafile,model,svm_model_path,libsvm_path, prediction_id)
+		result_svmtarget=svm_target.plant_predict(fastafile,model,svm_model_path,libsvm_path, prediction_id, tmpfile_path)
 		if predictor == "MultiLoc2.11":
 			fastafile.seek(0)
 			print "run SVMSA"
-			result_svm_sa = svm_sa.plant_predict(fastafile,svm_data_path,libsvm_path,12345, prediction_id)
+			result_svm_sa = svm_sa.plant_predict(fastafile,svm_data_path,libsvm_path,12345, prediction_id, tmpfile_path)
 		fastafile.seek(0)
 		aac_type="aac"
 		table="BACELLOP"
@@ -316,7 +320,7 @@ def multiloc2_create_feature_vector(predictor,origin, fastafile, go_file_names, 
 			table="Benchmark80P"
 			svm_model_path=svm_data_path+"/benchmark80_plant_svmaac/"
 		print "run SVMaac"
-		result_svm_aac = svm_aac.plant_predict(aac_type,table,svm_model_path,fastafile,model,libsvm_path,prediction_id)
+		result_svm_aac = svm_aac.plant_predict(aac_type,table,svm_model_path,fastafile,model,libsvm_path,prediction_id, tmpfile_path)
 		fastafile.seek(0)
 		svm_model_path=svm_data_path+"/bacello_all_plant_goloc/"
 		if predictor == "MultiLoc2.11":
@@ -325,13 +329,13 @@ def multiloc2_create_feature_vector(predictor,origin, fastafile, go_file_names, 
 			print "skip GOLoc"
 		else:
 			print "run GOLoc"
-		result_svm_goloc = svm_goloc.plant_predict(table,svm_model_path,fastafile,model,libsvm_path,inter_pro_scan_path,use_inter_pro_scan,go_file_names,prediction_id)
+		result_svm_goloc = svm_goloc.plant_predict(table,svm_model_path,fastafile,model,libsvm_path,inter_pro_scan_path,use_inter_pro_scan,go_file_names,prediction_id, tmpfile_path)
 		fastafile.seek(0)
 		svm_model_path=svm_data_path+"/bacello_all_plant_phyloloc_G78BS/"
 		if predictor == "MultiLoc2.11":
 			svm_model_path=svm_data_path+"/benchmark80_plant_phyloloc_G78BS/"
 		print "run PhyloLoc"
-		result_svm_phyloloc = svm_phyloloc.plant_predict(table,svm_model_path,fastafile,model,libsvm_path,blast_path,genome_path,prediction_id)
+		result_svm_phyloloc = svm_phyloloc.plant_predict(table,svm_model_path,fastafile,model,libsvm_path,blast_path,genome_path,prediction_id, tmpfile_path)
 		fastafile.seek(0)
 		print "run MotifSearch"
 		result_motif_search=motif_search.search(fastafile)
@@ -418,32 +422,32 @@ def multiloc2_create_feature_vector(predictor,origin, fastafile, go_file_names, 
 										'nls_mono' : result_motif_search[i]['nls_mono']})
 	return feature_vector
 
-def multiloc2_predict_location(predictor,origin, feature_vector, model, prediction_id):
+def multiloc2_predict_location(predictor,origin, feature_vector, model, prediction_id,tmpfile_path):
 	print "run MultiLoc2"
 	result = []
-	libsvm_path=""
-	svm_data_path=""
+	libsvm_path="/usr/bin/"
+	svm_data_path="/opt/software/MultiLoc2/1.0/data/svm_models/MultiLoc2/"
 	if origin == "animal":
 		if predictor == "MultiLoc2.11":
 			svm_model_path = svm_data_path+"/benchmark80_animal_multiloc_with_new_svmaac_join_phylo_G78BS_join_go/"
-			result = svm_multiloc2_11.animal_predict(feature_vector,svm_model_path,libsvm_path,model, prediction_id)
+			result = svm_multiloc2_11.animal_predict(feature_vector,svm_model_path,libsvm_path,model, prediction_id,tmpfile_path)
 		else:
 			svm_model_path = svm_data_path+"/bacello_all_animal_multiloc_with_new_svmaac_join_phylo_G78BS_join_go/"
-			result = svm_multiloc2_5.animal_predict(feature_vector,svm_model_path,libsvm_path,model, prediction_id)
+			result = svm_multiloc2_5.animal_predict(feature_vector,svm_model_path,libsvm_path,model, prediction_id,tmpfile_path)
 	elif origin == "fungal":
 		if predictor == "MultiLoc2.11":
 			svm_model_path = svm_data_path+"/benchmark80_fungi_multiloc_with_new_svmaac_join_phylo_G78BS_join_go/"
-			result = svm_multiloc2_11.fungi_predict(feature_vector,svm_model_path,libsvm_path,model, prediction_id)
+			result = svm_multiloc2_11.fungi_predict(feature_vector,svm_model_path,libsvm_path,model, prediction_id,tmpfile_path)
 		else:
 			svm_model_path = svm_data_path+"/bacello_all_fungi_multiloc_with_new_svmaac_join_phylo_G78BS_join_go/"
-			result = svm_multiloc2_5.fungi_predict(feature_vector,svm_model_path,libsvm_path,model, prediction_id)
+			result = svm_multiloc2_5.fungi_predict(feature_vector,svm_model_path,libsvm_path,model, prediction_id,tmpfile_path)
 	else:
 		if predictor == "MultiLoc2.11":
 			svm_model_path = svm_data_path+"/benchmark80_plant_multiloc_with_new_svmaac_join_phylo_G78BS_join_go/"
-			result = svm_multiloc2_11.plant_predict(feature_vector,svm_model_path,libsvm_path,model, prediction_id)
+			result = svm_multiloc2_11.plant_predict(feature_vector,svm_model_path,libsvm_path,model, prediction_id, tmpfile_path)
 		else:
 			svm_model_path = svm_data_path+"/bacello_all_plant_multiloc_with_new_svmaac_join_phylo_G78BS_join_go/"
-			result = svm_multiloc2_5.plant_predict(feature_vector,svm_model_path,libsvm_path,model, prediction_id)
+			result = svm_multiloc2_5.plant_predict(feature_vector,svm_model_path,libsvm_path,model, prediction_id, tmpfile_path)
 
 	return result
 
@@ -544,6 +548,7 @@ def main():
 	rm_fasta = 0
 	result_file_name = ""
 	go_file_names = []
+	tmpfile_path="~/tmp/"
 
 	global multiloc2_mode
 	if len(sys.argv)<3:
@@ -581,15 +586,28 @@ def main():
 		if re.findall("^-go=",param):
 			go_file_names.append(re.sub("^-go=","",param))
 			match=1
+		if re.findall("^-tmp_path=",param):
+			tmpfile_path = re.sub("^-tmp_path=","",param)
+			"""
+			check and see if tmp_dir already exists, if  it does error out. If it does not, create directory
+			"""
+			if os.path.isdir(tmpfile_path):
+				assert False, "{} already exists. Choose a different file path".format(tmpfile_path)
+			else:
+				os.mkdir(tmpfile_path)
+			"""
+			If the directory already exists, FileExistsError is raised.
+			"""
+			match = 1
 		if match == 0:
 			print "Error: param %s not valid!" %(param)
 			param_error = 1
 	if param_error == 1 or (origin != "animal" and origin != "plant" and origin != "fungal") or fastafile_name == "" or (output != "simple" and output != "advanced") or (rm_fasta !=0 and rm_fasta !=1) or (predictor!="LowRes" and predictor!="HighRes") or (multiloc2_mode == "stand-alone" and result_file_name == ""):
 		print "Wrong parameter setting!\nusage:"
 		if multiloc2_mode == "stand-alone":
-			print "python "+sys.argv[0]+" -fasta=<fasta file> -origin=<animal|plant|fungal> -result=<result file> [-predictor=<LowRes|HighRes>] [-output=<simple|advanced>] [[-go=<go file>] ... ]"
+			print "python "+sys.argv[0]+" -fasta=<fasta file> -origin=<animal|plant|fungal> -result=<result file> [-predictor=<LowRes|HighRes>] [-output=<simple|advanced>] [[-go=<go file>] [-tmp_path=<dir for temporary output>]... ]"
 		else:
-			print "python "+sys.argv[0]+" -fasta=<fasta file> -origin=<animal|plant|fungal> [-predictor=<LowRes|HighRes>] [-email=<email-address>] [-output=<simple|advanced>] [-rm_fasta=<0|1>]"
+			print "python "+sys.argv[0]+" -fasta=<fasta file> -origin=<animal|plant|fungal> [-predictor=<LowRes|HighRes>] [-email=<email-address>] [-output=<simple|advanced>] [-rm_fasta=<0|1>] [-tmp_path=<dir for temporary output>]"
 		sys.exit()
 	if multiloc2_mode == "online-service":
 		check_load()
@@ -602,11 +620,11 @@ def main():
 		predictor = "MultiLoc2.5";
 
 	file=open(fastafile_name,"r")
-	vec = multiloc2_create_feature_vector(predictor,origin,file,go_file_names, 12345,prediction_id)
+	vec = multiloc2_create_feature_vector(predictor,origin,file,go_file_names, 12345,prediction_id,tmpfile_path)
 	file.close()
 	if rm_fasta==1 and os.path.exists(fastafile_name):
 		os.remove(fastafile_name)
-	res = multiloc2_predict_location(predictor,origin, vec, 12345, prediction_id)
+	res = multiloc2_predict_location(predictor,origin, vec, 12345, prediction_id,tmpfile_path)
 
 	line="Dear user,\nhere are the prediction results for your query.\n\n"
 	if multiloc2_mode == "stand-alone":
