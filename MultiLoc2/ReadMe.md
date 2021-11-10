@@ -5,12 +5,12 @@ MultiLoc2 is a bioinformatics tool for predicting subcellular localizations of e
 It's main purpose are large-scale annotations of protein sequence data. 
 The prediction system is implemented in python and trained using support vector machines. 
 MultiLoc2 combines the output of several specialized subpredictors: 
-- SVMTarget: for recognizing N-terminal targeting sequences (SPs, MTPs, CTPs) 
-- SVMSA: for recognizing signal anchors
-- SVMaac: for analyzing the overall amino acid composition
-- MotifSearch: for recognizing relevant sequence motifs like NLSs, KDELs, SKLs, or DNA binding domains
-- GOLoc: for analyzing Gene Ontology terms derived from the protein sequence
-- PhyloLoc: for analyzing the phylogenetic profiles of the query sequences based on 78 genomes
+- **SVMTarget**: for recognizing N-terminal targeting sequences (SPs, MTPs, CTPs) 
+- **SVMSA**: for recognizing signal anchors
+- **SVMaac**: for analyzing the overall amino acid composition
+- **MotifSearch**: for recognizing relevant sequence motifs like NLSs, KDELs, SKLs, or DNA binding domains
+- **GOLoc**: for analyzing Gene Ontology terms derived from the protein sequence
+- **PhyloLoc**: for analyzing the phylogenetic profiles of the query sequences based on 78 genomes
 
 More information about the system architecture, training procedure and performance evaluation
 can be found in:
@@ -24,17 +24,17 @@ MultiLoc2 is available at
 ------------------
 MultiLoc2 needs a Unix environment and uses several external tools.
 Before MultiLoc2 can be run, the Libsvm and Blast packages must be installed and available
-in your local $PATH variable. Furthermore, it is recommended but not required that the InterPro package
+in your local `${PATH}` variable. Furthermore, it is recommended but not required that the InterPro package
 is also installed.
 
 Libsvm is available at
-http://www.csie.ntu.edu.tw/~cjlin/libsvm [link](http://www.csie.ntu.edu.tw/~cjlin/libsvm )
+http://www.csie.ntu.edu.tw/~cjlin/libsvm 
 
 Blast is available at
-http://www.ncbi.nlm.nih.gov/BLAST/download.shtml [link](http://www.ncbi.nlm.nih.gov/BLAST/download.shtml)
+http://www.ncbi.nlm.nih.gov/BLAST/download.shtml 
 
 InterPro is available at
-http://www.ebi.ac.uk/interpro [link](http://www.ebi.ac.uk/interpro )
+http://www.ebi.ac.uk/interpro 
 
 # Installation:
 ----------------------------
@@ -56,7 +56,7 @@ Run MultiLoc2 without parameters to see how it can be used by the command
 ```
 python src/multiloc2_prediction.py
 ```
-The following list of required and optional parameters can be used to configure MultiLoc2:
+## Flags
 
 * `-fasta=<fasta file>`
 	required: MultiLoc2 accepts as input protein sequence data in fasta format.
@@ -86,10 +86,9 @@ The following list of required and optional parameters can be used to configure 
 	optional: The GOLoc subpredictor requires Gene Ontology (GO) terms as input.
 	Several files containing GO data can be passed via this parameter. 
 	The lines in the files must be in the following format:
-	<protein fasta id><at least one space or tab><GO data>
-	where <GO data> is an annotating text which is scanned for GO terms in the format GO:[0-9][0-9][0-9][0-9][0-9]
-	
-* The protein ids in the GO data files must also be present in the input sequence fasta file. 
+	`<protein fasta id><at least one space or tab><GO data>`
+	where `<GO data>` is an annotating text which is scanned for GO terms in the format `GO:[0-9][0-9][0-9][0-9][0-9]`
+	The protein ids in the GO data files must also be present in the input sequence fasta file. 
 	GO data for each protein can be distributed over several lines or several files. 
 	If no file containing GO data is passed, MultiLoc2 skips the GOLoc subpredictor and replaces its output
 	by default values. It is recommended to use the program iprscan from the InterPro package to create GO data.
