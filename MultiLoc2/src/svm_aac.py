@@ -1,6 +1,8 @@
+#! /usr/bin/python2
+
 import re, os, sys, string, util
 
-tmpfile_path=""
+#tmpfile_path="/data/run/hallna12/microPep/multiLoc2/xch_dir/tmp/"
 
 def create_pattern_aac(sequence,klasse):
 	pattern = []
@@ -101,12 +103,11 @@ def create_pattern(type,sequence,klasse):
 		return create_pattern_aac(sequence,klasse)
 
 
-def predict(origin,aac_type,table,path,data,model,libsvm_path, id=1):
+def predict(origin,aac_type,table,path,data,model,libsvm_path, id=1, tmpfile_path=None):
 	model=str(model)
-  
 	proteins = util.parse_fasta_file(data)
 	no_fv_proteins = []
-
+	
 	file_path = tmpfile_path+"/"+str(id)
 	input_file = open("%stest_svm.dat" % file_path, 'w')
 	for i in range (0,len(proteins)):
@@ -114,14 +115,13 @@ def predict(origin,aac_type,table,path,data,model,libsvm_path, id=1):
 		for p in pattern:
 			input_file.write(p)
 	input_file.close()
-    
 	return util.predict_one_vs_one(table,origin,model,path,libsvm_path,tmpfile_path,id,proteins,no_fv_proteins)
 
-def animal_predict(aac_type,table,path,data,model,libsvm_path, id=1):
-	return predict("animal",aac_type,table,path,data,model,libsvm_path, id)
+def animal_predict(aac_type,table,path,data,model,libsvm_path, id=1,tmpfile_path=None):
+	return predict("animal",aac_type,table,path,data,model,libsvm_path, id, tmpfile_path)
 
-def fungi_predict(aac_type,table,path,data,model,libsvm_path, id=1):
-	return predict("fungi",aac_type,table,path,data,model,libsvm_path, id)
+def fungi_predict(aac_type,table,path,data,model,libsvm_path, id=1,tmpfile_path=None):
+	return predict("fungi",aac_type,table,path,data,model,libsvm_path, id, tmpfile_path)
 
-def plant_predict(aac_type,table,path,data,model,libsvm_path, id=1):
-	return predict("plant",aac_type,table,path,data,model,libsvm_path, id)
+def plant_predict(aac_type,table,path,data,model,libsvm_path, id=1, tmpfile_path=None):
+	return predict("plant",aac_type,table,path,data,model,libsvm_path, id, tmpfile_path)
