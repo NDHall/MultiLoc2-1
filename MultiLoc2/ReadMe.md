@@ -15,9 +15,7 @@ MultiLoc2 combines the output of several specialized subpredictors:
 More information about the system architecture, training procedure and performance evaluation
 can be found in:
 
-Blum,T., Briesemeister,S. and Kohlbacher,O.
-MultiLoc2: integrating phylogeny and Gene Ontology terms improves subcellular protein localization prediction
-BMC Bioinformatics, 2009
+_Blum,T., Briesemeister,S. and Kohlbacher,O. MultiLoc2: integrating phylogeny and Gene Ontology terms improves subcellular protein localization prediction BMC Bioinformatics, 2009_
 
 MultiLoc2 is available at 
 [http://www-bs.informatik.uni-tuebingen.de/Services/MultiLoc2/](http://www-bs.informatik.uni-tuebingen.de/Services/MultiLoc2/)
