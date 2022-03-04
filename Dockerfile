@@ -7,7 +7,7 @@ FROM ubuntu:14.04
 
 # Update package repository
 RUN apt-get update
-RUN apt-get -y upgrade
+#RUN apt-get -y upgrade
 
 
 # ----------------------------------------------------------
